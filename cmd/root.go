@@ -65,6 +65,7 @@ func init() {
 	rootCmd.AddCommand(copyCmd)
 	rootCmd.AddCommand(moveCmd)
 	rootCmd.AddCommand(renameCmd)
+	rootCmd.AddCommand(deleteCmd)
 }
 
 

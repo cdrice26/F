@@ -64,5 +64,17 @@ Example:
 f rename file.txt new_file.txt
 ```
 
+### Delete Files and Directories
+To delete a file or directory, use the rename command:
+```sh
+f delete <source>...
+```
+
+Example:
+
+```sh
+f delete file.txt
+```
+
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
