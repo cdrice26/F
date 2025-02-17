@@ -32,13 +32,12 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "f",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "A file manager CLI that's much more intuitive than the built-in commands",
+	Long: `f is a file manager CLI that's much more intuitive than the built-in commands.
+	To use it, just type "f" and then type the command you want to run. Supported commands are:
+	- copy <source> <destination>
+	- move <source> <destination>
+	- rename <source> <destination>`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -65,6 +64,7 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.AddCommand(copyCmd)
 	rootCmd.AddCommand(moveCmd)
+	rootCmd.AddCommand(renameCmd)
 }
 
 
