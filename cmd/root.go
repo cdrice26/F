@@ -27,8 +27,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "f",
@@ -37,7 +35,8 @@ var rootCmd = &cobra.Command{
 	To use it, just type "f" and then type the command you want to run. Supported commands are:
 	- copy <source> <destination>
 	- move <source> <destination>
-	- rename <source> <destination>`,
+	- rename <source> <destination>
+	- delete <source>`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -67,5 +66,3 @@ func init() {
 	rootCmd.AddCommand(renameCmd)
 	rootCmd.AddCommand(deleteCmd)
 }
-
-
