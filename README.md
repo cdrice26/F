@@ -10,7 +10,7 @@ To install `f` from source, follow these steps:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/f.git
+    git clone https://github.com/cdrice26/f.git
     cd f
     ```
 
