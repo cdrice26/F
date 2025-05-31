@@ -1,8 +1,8 @@
 package helper
 
 import (
-    "os"
-    "path/filepath"
+	"os"
+	"path/filepath"
 )
 
 // DeleteFile deletes a file from src.
@@ -25,27 +25,21 @@ func DeleteDirectory(src string) error {
 
 // Delete deletes a file or directory from src.
 func Delete(src string) error {
-    matches, err := filepath.Glob(src)
-    if err != nil {
-        return err
-    }
+	matches, err := filepath.Glob(src)
+	if err != nil {
+		return err
+	}
 
-    for _, match := range matches {
-        info, err := os.Stat(match)
-        if err != nil {
-            return err
-        }
+	run := func(info os.FileInfo, match string) error {
+		if info.IsDir() {
+			err = DeleteDirectory(match)
+		} else {
+			err = DeleteFile(match)
+		}
+		return err
+	}
 
-        if info.IsDir() {
-            err = DeleteDirectory(match)
-        } else {
-            err = DeleteFile(match)
-        }
+	err = RunConcurrent(run, 4, matches)
 
-        if err != nil {
-            return err
-        }
-    }
-
-    return nil
+	return nil
 }

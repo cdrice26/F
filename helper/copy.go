@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 )
 
 // CopyFile copies a single file from src to dst. If removeSource is true, the source file is deleted after copying.
@@ -81,53 +80,16 @@ func Copy(src, dst string, removeSource bool) error {
 		return err
 	}
 
-	var wg sync.WaitGroup
-	jobs := make(chan string)
-	errs := make(chan error, len(matches))
-	workerCount := 4
-
-	worker := func() {
-		defer wg.Done()
-		for match := range jobs {
-			info, err := os.Stat(match)
-			if err != nil {
-				errs <- err
-				continue
-			}
-
-			if info.IsDir() {
-				err = CopyDirectory(match, dst, removeSource)
-			} else {
-				err = CopyFile(match, dst, removeSource)
-			}
-
-			if err != nil {
-				errs <- err
-			}
+	run := func(info os.FileInfo, match string) error {
+		if info.IsDir() {
+			err = CopyDirectory(match, dst, removeSource)
+		} else {
+			err = CopyFile(match, dst, removeSource)
 		}
+		return err
 	}
 
-	for range workerCount {
-		wg.Add(1)
-		go worker()
-	}
-
-	go func() {
-		for _, match := range matches {
-			jobs <- match
-		}
-		close(jobs)
-	}()
-
-	wg.Wait()
-	close(errs)
-
-	// Collect errors
-	for err := range errs {
-		if err != nil {
-			return err
-		}
-	}
+	err = RunConcurrent(run, 4, matches)
 
 	return nil
 }
