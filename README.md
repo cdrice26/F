@@ -26,6 +26,8 @@ To install `f` from source, follow these steps:
 
 ## Usage
 
+Note that for the copy and move commands, the program will create nonexistent directories for you - no need to use `mkdir`!
+
 ### Copy Files and Directories
 
 To copy files or directories, use the `copy` command:
