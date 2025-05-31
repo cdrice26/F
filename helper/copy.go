@@ -47,7 +47,9 @@ func CopyDirectory(src, dst string, removeSource bool) error {
 		return err
 	}
 
-	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+	var dirs []string
+
+	walkErr := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -56,7 +58,12 @@ func CopyDirectory(src, dst string, removeSource bool) error {
 		targetPath := filepath.Join(dst, relPath)
 
 		if info.IsDir() {
-			return os.MkdirAll(targetPath, info.Mode())
+			err := os.MkdirAll(targetPath, info.Mode())
+			if err != nil {
+				return err
+			}
+			dirs = append([]string{path}, dirs...)
+			return nil
 		}
 
 		err = CopyFile(path, filepath.Dir(targetPath), removeSource)
@@ -66,6 +73,18 @@ func CopyDirectory(src, dst string, removeSource bool) error {
 
 		return nil
 	})
+
+	if walkErr != nil {
+		return walkErr
+	}
+
+	if removeSource {
+		for _, dir := range dirs {
+			_ = os.Remove(dir)
+		}
+	}
+
+	return nil
 }
 
 // Copy handles copying files, directories, and wildcards.
