@@ -54,14 +54,27 @@ func GetDirSize(path string) (int64, error) {
 	return totalSize, err
 }
 
+// isParentHidden checks if any parent directory is hidden, relative to basePath
+func isParentHidden(currentPath, basePath string) bool {
+	for path := currentPath; path != basePath; path = filepath.Dir(path) {
+		if strings.HasPrefix(filepath.Base(path), ".") {
+			return true
+		}
+	}
+	return false
+}
+
 // GetFileListing returns a list of files in a directory.
-func GetFileListing(path string) ([]Entry, error) {
+func GetFileListing(path string, includeHidden bool) ([]Entry, error) {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 	var entries []Entry
 	for _, file := range files {
+		if !includeHidden && strings.HasPrefix(file.Name(), ".") {
+			continue
+		}
 		fullPath := file.Name()
 		entries = append(entries, Entry{Path: fullPath, DirEntry: file})
 	}
@@ -69,11 +82,20 @@ func GetFileListing(path string) ([]Entry, error) {
 }
 
 // GetDirectoryTree returns a tree structure of a directory.
-func GetDirectoryTree(path string) ([]Entry, error) {
+func GetDirectoryTree(path string, includeHidden bool) ([]Entry, error) {
 	var entries []Entry
 	err := filepath.WalkDir(path, func(currentPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
+		}
+		// Check if the current entry is a file/directory
+		isHidden := !includeHidden && strings.HasPrefix(d.Name(), ".")
+
+		// If it's hidden, check upper directories
+		if !includeHidden {
+			if isHidden || isParentHidden(currentPath, path) {
+				return nil // Skip the entry if it's hidden or in hidden directory
+			}
 		}
 		if path == currentPath {
 			entries = append(entries, Entry{Path: path, DirEntry: d})

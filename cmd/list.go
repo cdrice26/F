@@ -25,6 +25,13 @@ func runList(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	// Check if the hidden flag is set
+	includeHidden, err := cmd.Flags().GetBool("hidden")
+	if err != nil {
+		fmt.Println("Error getting flag value:", err)
+		return
+	}
+
 	// Read the files from the directory
 	dir, err := helper.GetDirectoryFromArgs(args)
 	if err != nil {
@@ -34,13 +41,13 @@ func runList(cmd *cobra.Command, args []string) {
 
 	files := []helper.Entry{}
 	if isTree {
-		files, err = helper.GetDirectoryTree(dir)
+		files, err = helper.GetDirectoryTree(dir, includeHidden)
 		if err != nil {
 			fmt.Println("Error reading the directory:", err)
 			return
 		}
 	} else {
-		files, err = helper.GetFileListing(dir)
+		files, err = helper.GetFileListing(dir, includeHidden)
 		if err != nil {
 			fmt.Println("Error reading the directory:", err)
 			return
@@ -119,4 +126,5 @@ var listCmd = &cobra.Command{
 func init() {
 	listCmd.Flags().BoolP("no-directory-sizes", "n", false, "Do not display directory sizes")
 	listCmd.Flags().BoolP("tree", "t", false, "Display directory tree")
+	listCmd.Flags().BoolP("hidden", "a", false, "Include hidden files and directories")
 }
