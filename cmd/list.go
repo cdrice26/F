@@ -11,6 +11,13 @@ import (
 )
 
 func runList(cmd *cobra.Command, args []string) {
+	// Check if the no-directory-sizes flag is set
+	noDirSizes, err := cmd.Flags().GetBool("no-directory-sizes")
+	if err != nil {
+		fmt.Println("Error getting flag value:", err)
+		return
+	}
+	dir_sizes := !noDirSizes
 
 	// Read the files from the directory
 	dir, err := helper.GetDirectoryFromArgs(args)
@@ -50,11 +57,15 @@ func runList(cmd *cobra.Command, args []string) {
 		fileSize := ""
 		if file.IsDir() {
 			fileType = "Directory"
-			dirSize, err := helper.GetDirSize(filepath.Join(dir, file.Name()))
-			if err != nil {
-				fileSize = "Unknown"
+			if dir_sizes {
+				dirSize, err := helper.GetDirSize(filepath.Join(dir, file.Name()))
+				if err != nil {
+					fileSize = "Unknown"
+				} else {
+					fileSize = helper.FormatSize(dirSize)
+				}
 			} else {
-				fileSize = helper.FormatSize(dirSize)
+				fileSize = "N/A"
 			}
 		} else {
 			fileType = "File"
@@ -71,4 +82,8 @@ var listCmd = &cobra.Command{
 	Short: "List files in the current directory",
 	Long:  `List files in the current directory.`,
 	Run:   runList,
+}
+
+func init() {
+	listCmd.Flags().BoolP("no-directory-sizes", "n", false, "Do not display directory sizes")
 }
