@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -30,11 +31,15 @@ func FormatSize(size int64) string {
 // Calculate total size of a directory (recursively)
 func GetDirSize(path string) (int64, error) {
 	var totalSize int64
-	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir(path, func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() {
+		if !d.IsDir() {
+			info, err := d.Info()
+			if err != nil {
+				return err
+			}
 			totalSize += info.Size()
 		}
 		return nil
