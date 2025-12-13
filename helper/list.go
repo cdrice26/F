@@ -86,7 +86,7 @@ func GetDirectoryTree(path string, includeHidden bool) ([]Entry, error) {
 	var entries []Entry
 	err := filepath.WalkDir(path, func(currentPath string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return err
+			return nil
 		}
 		// Check if the current entry is a file/directory
 		isHidden := !includeHidden && strings.HasPrefix(d.Name(), ".")
