@@ -78,5 +78,16 @@ Example:
 f delete file.txt
 ```
 
+### List Files in a Directory
+To list files in a directory, use the list command:
+```sh
+f list [directory]
+```
+If no directory is provided, the working directory is used.
+The following flags are supported:
+- `-n`, `--no-directory-sizes` - By default, sizes are calculated for directories, which can be time-consuming. This flag disables it.
+- `-t`, `--tree` - Show all subdirectories and files in a tree-style output.
+- `-a`, `--hidden` - Include hidden files and directories in the output.
+
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
