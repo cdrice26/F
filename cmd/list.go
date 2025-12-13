@@ -44,7 +44,6 @@ func runList(cmd *cobra.Command, args []string) {
 
 	// Display metadata for each file
 	fmt.Printf(formatStr, "Name", "Size", "Type", "Modified")
-	fmt.Println("-----------------------------------------------------------------------------------------")
 	for _, file := range files {
 		fileInfo, err := file.Info()
 		if err != nil {
