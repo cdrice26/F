@@ -40,6 +40,9 @@ Example:
 f copy file1.txt file2.txt /path/to/destination/
 ```
 
+The following flags are supported:
+- `-o`, `--overwrite` - Overwrite the destination file if it exists.
+
 ### Move Files and Directories
 
 
@@ -54,6 +57,9 @@ Example:
 f move file1.txt file2.txt /path/to/destination/
 ```
 
+The following flags are supported:
+- `-o`, `--overwrite` - Overwrite the destination file if it exists.
+
 ### Rename Files and Directories
 To rename a file or directory, use the rename command:
 ```sh
@@ -66,8 +72,11 @@ Example:
 f rename file.txt new_file.txt
 ```
 
+The following flags are supported:
+- `-o`, `--overwrite` - Overwrite the destination file if it exists.
+
 ### Delete Files and Directories
-To delete a file or directory, use the rename command:
+To delete a file or directory, use the delete command:
 ```sh
 f delete <source>...
 ```
@@ -77,6 +86,8 @@ Example:
 ```sh
 f delete file.txt
 ```
+The following flags are supported:
+- `-f`, `--force` - Force deletion without prompting for confirmation.
 
 ### List Files in a Directory
 To list files in a directory, use the list command:

@@ -9,6 +9,13 @@ import (
 )
 
 func runDelete(cmd *cobra.Command, args []string) {
+	force, err := cmd.Flags().GetBool("force")
+
+	if err != nil {
+		fmt.Printf("Error getting force flag: %v\n", err)
+		return
+	}
+
 	if len(args) < 1 {
 		fmt.Println("Usage: delete <source>...")
 		return
@@ -30,7 +37,7 @@ func runDelete(cmd *cobra.Command, args []string) {
 		}
 
 		for _, match := range matches {
-			err := helper.Delete(match)
+			err := helper.Delete(match, force)
 			if err != nil {
 				fmt.Printf("Error deleting %s: %v\n", match, err)
 			} else {
@@ -41,8 +48,12 @@ func runDelete(cmd *cobra.Command, args []string) {
 }
 
 var deleteCmd = &cobra.Command{
-	Use:   "delete",
+	Use:   "delete <source>...",
 	Short: "Delete files, directories, and wildcards",
 	Long:  `Delete files, directories, and wildcards from source to destination.`,
 	Run:   runDelete,
+}
+
+func init() {
+	deleteCmd.Flags().BoolP("force", "f", false, "Force deletion without confirmation")
 }

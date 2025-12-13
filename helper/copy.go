@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -8,13 +9,22 @@ import (
 )
 
 // CopyFile copies a single file from src to dst. If removeSource is true, the source file is deleted after copying.
-func CopyFile(src, dst string, removeSource bool) error {
+// If overwrite is true, the destination file is overwritten if it already exists.
+func CopyFile(src, dst string, removeSource bool, overwrite bool) error {
 	_, filename := filepath.Split(src)
 	sourceFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer sourceFile.Close()
+
+	if !overwrite {
+		if _, err := os.Stat(dst); !os.IsNotExist(err) {
+			if !overwrite {
+				return fmt.Errorf("file already exists: %s", dst)
+			}
+		}
+	}
 
 	destinationFile, err := os.Create(filepath.Join(dst, filename))
 	if err != nil {
@@ -38,7 +48,8 @@ func CopyFile(src, dst string, removeSource bool) error {
 }
 
 // CopyDirectory copies a directory from src to dst. If removeSource is true, the source directory is deleted after copying.
-func CopyDirectory(src, dst string, removeSource bool) error {
+// If overwrite is true, the destination files are overwritten if they already exist.
+func CopyDirectory(src, dst string, removeSource bool, overwrite bool) error {
 	src = strings.TrimSuffix(src, string(os.PathSeparator))
 	dst = filepath.Join(dst, filepath.Base(src))
 
@@ -66,7 +77,7 @@ func CopyDirectory(src, dst string, removeSource bool) error {
 			return nil
 		}
 
-		err = CopyFile(path, filepath.Dir(targetPath), removeSource)
+		err = CopyFile(path, filepath.Dir(targetPath), removeSource, overwrite)
 		if err != nil {
 			return err
 		}
@@ -88,7 +99,7 @@ func CopyDirectory(src, dst string, removeSource bool) error {
 }
 
 // Copy handles copying files, directories, and wildcards.
-func Copy(src, dst string, removeSource bool) error {
+func Copy(src, dst string, removeSource bool, overwrite bool) error {
 	matches, err := filepath.Glob(src)
 	if err != nil {
 		return err
@@ -101,14 +112,18 @@ func Copy(src, dst string, removeSource bool) error {
 
 	run := func(info os.FileInfo, match string) error {
 		if info.IsDir() {
-			err = CopyDirectory(match, dst, removeSource)
+			err = CopyDirectory(match, dst, removeSource, overwrite)
 		} else {
-			err = CopyFile(match, dst, removeSource)
+			err = CopyFile(match, dst, removeSource, overwrite)
 		}
 		return err
 	}
 
 	err = RunConcurrent(run, 4, matches)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
