@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -25,6 +26,22 @@ func formatSize(size int64) string {
 		return fmt.Sprintf("%.2f KB", float64(size)/float64(1024))
 	}
 	return fmt.Sprintf("%d Bytes", size)
+}
+
+// Calculate total size of a directory (recursively)
+func getDirSize(path string) (int64, error) {
+	var totalSize int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
+
+	return totalSize, err
 }
 
 func runList(cmd *cobra.Command, args []string) {
@@ -64,14 +81,22 @@ func runList(cmd *cobra.Command, args []string) {
 
 		// Get file type
 		fileType := ""
+		fileSize := ""
 		if file.IsDir() {
 			fileType = "Directory"
+			dirSize, err := getDirSize(filepath.Join(dir, file.Name()))
+			if err != nil {
+				fileSize = "Unknown"
+			} else {
+				fileSize = formatSize(dirSize)
+			}
 		} else {
 			fileType = "File"
+			fileSize = formatSize(fileInfo.Size())
 		}
 
 		// Displaying file metadata
-		fmt.Printf(dataFormatStr, fileInfo.Name(), formatSize(fileInfo.Size()), fileType, fileInfo.ModTime().Format(time.RFC1123))
+		fmt.Printf(dataFormatStr, fileInfo.Name(), fileSize, fileType, fileInfo.ModTime().Format(time.RFC1123))
 	}
 }
 
