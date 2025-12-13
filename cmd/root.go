@@ -37,7 +37,7 @@ var rootCmd = &cobra.Command{
 	- move <source> <destination>
 	- rename <source> <destination>
 	- delete <source>
-	- list`,
+	- list [directory]`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
