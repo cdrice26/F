@@ -78,8 +78,8 @@ func runList(cmd *cobra.Command, args []string) {
 
 var listCmd = &cobra.Command{
 	Use:   "list [directory]",
-	Short: "List files in the current directory",
-	Long:  `List files in the current directory.`,
+	Short: "List files in the specified directory",
+	Long:  `List files in the specified directory. If no directory is specified, the current directory is used.`,
 	Run:   runList,
 }
 
