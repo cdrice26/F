@@ -3,7 +3,6 @@ package cmd
 import (
 	"f/helper"
 	"fmt"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -19,6 +18,13 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 	dir_sizes := !noDirSizes
 
+	// Check if the tree flag is set
+	isTree, err := cmd.Flags().GetBool("tree")
+	if err != nil {
+		fmt.Println("Error getting flag value:", err)
+		return
+	}
+
 	// Read the files from the directory
 	dir, err := helper.GetDirectoryFromArgs(args)
 	if err != nil {
@@ -26,26 +32,49 @@ func runList(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		fmt.Println("Error reading the directory:", err)
-		return
+	files := []helper.Entry{}
+	if isTree {
+		files, err = helper.GetDirectoryTree(dir)
+		if err != nil {
+			fmt.Println("Error reading the directory:", err)
+			return
+		}
+	} else {
+		files, err = helper.GetFileListing(dir)
+		if err != nil {
+			fmt.Println("Error reading the directory:", err)
+			return
+		}
 	}
 
 	longestFileName := 0
 	for _, file := range files {
-		if len(file.Name()) > longestFileName {
-			longestFileName = len(file.Name())
+		if len(file.DirEntry.Name()) > longestFileName {
+			longestFileName = len(file.DirEntry.Name())
 		}
 	}
 
-	formatStr := fmt.Sprintf("%%-%ds %%-10s %%-10s %%-30s\n", longestFileName)
-	dataFormatStr := fmt.Sprintf("%%-%ds %%-10s %%-10s %%-30s\n", longestFileName)
+	formatStr := ""
+	if isTree {
+		formatStr = fmt.Sprintf("%%-10s %%-10s %%-30s\n")
+	} else {
+		formatStr = fmt.Sprintf("%%-%ds %%-10s %%-10s %%-30s\n", longestFileName)
+	}
+	dataFormatStr := ""
+	if isTree {
+		dataFormatStr = fmt.Sprintf("%%-10s %%-10s %%-30s %%s\n")
+	} else {
+		dataFormatStr = fmt.Sprintf("%%-%ds %%-10s %%-10s %%-30s\n", longestFileName)
+	}
 
 	// Display metadata for each file
-	fmt.Printf(formatStr, "Name", "Size", "Type", "Modified")
+	if isTree {
+		fmt.Printf(formatStr, "Size", "Type", "Modified")
+	} else {
+		fmt.Printf(formatStr, "Name", "Size", "Type", "Modified")
+	}
 	for _, file := range files {
-		fileInfo, err := file.Info()
+		fileInfo, err := file.DirEntry.Info()
 		if err != nil {
 			fmt.Println("Error getting file info:", err)
 			continue
@@ -54,10 +83,10 @@ func runList(cmd *cobra.Command, args []string) {
 		// Get file type
 		fileType := ""
 		fileSize := ""
-		if file.IsDir() {
+		if file.DirEntry.IsDir() {
 			fileType = "Directory"
 			if dir_sizes {
-				dirSize, err := helper.GetDirSize(filepath.Join(dir, file.Name()))
+				dirSize, err := helper.GetDirSize(filepath.Join(dir, file.DirEntry.Name()))
 				if err != nil {
 					fileSize = "Unknown"
 				} else {
@@ -72,7 +101,11 @@ func runList(cmd *cobra.Command, args []string) {
 		}
 
 		// Displaying file metadata
-		fmt.Printf(dataFormatStr, fileInfo.Name(), fileSize, fileType, fileInfo.ModTime().Format(time.RFC1123))
+		if isTree {
+			fmt.Printf(dataFormatStr, fileSize, fileType, fileInfo.ModTime().Format(time.RFC1123), file.Path)
+		} else {
+			fmt.Printf(dataFormatStr, file.DirEntry.Name(), fileSize, fileType, fileInfo.ModTime().Format(time.RFC1123))
+		}
 	}
 }
 
@@ -85,4 +118,5 @@ var listCmd = &cobra.Command{
 
 func init() {
 	listCmd.Flags().BoolP("no-directory-sizes", "n", false, "Do not display directory sizes")
+	listCmd.Flags().BoolP("tree", "t", false, "Display directory tree")
 }

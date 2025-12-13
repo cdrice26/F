@@ -5,7 +5,13 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+type Entry struct {
+	Path     string
+	DirEntry fs.DirEntry
+}
 
 // GetDirectoryFromArgs returns the directory path from the command line arguments.
 func GetDirectoryFromArgs(args []string) (string, error) {
@@ -46,4 +52,40 @@ func GetDirSize(path string) (int64, error) {
 	})
 
 	return totalSize, err
+}
+
+// GetFileListing returns a list of files in a directory.
+func GetFileListing(path string) ([]Entry, error) {
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+	var entries []Entry
+	for _, file := range files {
+		fullPath := file.Name()
+		entries = append(entries, Entry{Path: fullPath, DirEntry: file})
+	}
+	return entries, nil
+}
+
+// GetDirectoryTree returns a tree structure of a directory.
+func GetDirectoryTree(path string) ([]Entry, error) {
+	var entries []Entry
+	err := filepath.WalkDir(path, func(currentPath string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if path == currentPath {
+			entries = append(entries, Entry{Path: path, DirEntry: d})
+		} else {
+			relPath := strings.Replace(currentPath, path, "", 1)
+			nestCount := strings.Count(relPath, string(filepath.Separator))
+			pathStr := strings.Repeat("│   ", nestCount)
+			fullPath := filepath.Join(pathStr, d.Name())
+			entries = append(entries, Entry{Path: fullPath, DirEntry: d})
+		}
+		return nil
+	})
+
+	return entries, err
 }
