@@ -37,7 +37,9 @@ var rootCmd = &cobra.Command{
 	- move <source> <destination>
 	- rename <source> <destination>
 	- delete <source>
-	- list [directory]`,
+	- list [directory]
+	- search <name|content> <query> [directory]
+`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -61,10 +63,10 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.AddCommand(copyCmd)
 	rootCmd.AddCommand(moveCmd)
 	rootCmd.AddCommand(renameCmd)
 	rootCmd.AddCommand(deleteCmd)
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(searchCmd)
 }

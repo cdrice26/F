@@ -100,5 +100,15 @@ The following flags are supported:
 - `-t`, `--tree` - Show all subdirectories and files in a tree-style output.
 - `-a`, `--hidden` - Include hidden files and directories in the output.
 
+### Search Files in a Directory
+To search for files in a directory, use the search command:
+```sh
+f search <name|content> <query> [directory]
+```
+`f search name` searches for files by name in a directory.
+`f search content` searches for files by content in a directory.
+If no directory is provided, the working directory is used.
+The query is simply a string to check for in the file name or content.
+
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.

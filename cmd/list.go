@@ -33,7 +33,7 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 
 	// Read the files from the directory
-	dir, err := helper.GetDirectoryFromArgs(args)
+	dir, err := helper.GetDirectoryFromArgs(args, 1)
 	if err != nil {
 		fmt.Println("Error getting directory:", err)
 		return

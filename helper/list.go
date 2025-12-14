@@ -14,11 +14,11 @@ type Entry struct {
 }
 
 // GetDirectoryFromArgs returns the directory path from the command line arguments.
-func GetDirectoryFromArgs(args []string) (string, error) {
-	if len(args) == 0 {
+func GetDirectoryFromArgs(args []string, numArgs int) (string, error) {
+	if len(args) <= (numArgs - 1) {
 		return os.Getwd()
 	} else {
-		return args[0], nil
+		return args[numArgs-1], nil
 	}
 }
 
