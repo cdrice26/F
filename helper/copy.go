@@ -19,7 +19,7 @@ func CopyFile(src, dst string, removeSource bool, overwrite bool) error {
 	defer sourceFile.Close()
 
 	if !overwrite {
-		if _, err := os.Stat(dst); !os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join(dst, filename)); !os.IsNotExist(err) {
 			if !overwrite {
 				return fmt.Errorf("file already exists: %s", dst)
 			}
