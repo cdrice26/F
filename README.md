@@ -13,15 +13,20 @@ To install `f` from source, follow these steps:
     git clone https://github.com/cdrice26/f.git
     cd f
     ```
+    
+2. Install dependencies:
+    ```sh
+    go mod download
+    ```
 
-2. Build the project:
+3. Build the project:
     ```sh
     go build -o f
     ```
 
-3. Move the binary to a directory in your PATH:
+4. Move the binary to a directory in your PATH:
     ```sh
-    mv f /usr/local/bin/
+    mv f /usr/local/bin/ # For MacOS/Linux, for Windows just put it somewhere and add it to your PATH
     ```
 
 ## Usage
