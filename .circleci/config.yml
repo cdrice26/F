@@ -1,0 +1,26 @@
+version: 2.1
+
+jobs:
+    build:
+        docker:
+            - image: cimg/go:1.25.4 # Specify your Go version here
+        steps:
+            - checkout # Check out the source code
+            - run:
+                  name: Install Dependencies
+                  command: |
+                      go mod download  # Download Go module dependencies
+            - run:
+                  name: Run Tests
+                  command: |
+                      go test ./...  # Run tests in all packages
+            - run:
+                  name: Build CLI
+                  command: |
+                      go build  # Build the CLI application
+
+workflows:
+    version: 2
+    build_and_test:
+        jobs:
+            - build
